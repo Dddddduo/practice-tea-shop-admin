@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>小罐茶编码打印</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    .codes-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      margin-top: 20px;
+    }
+    .code-item {
+      text-align: center;
+      margin: 10px;
+    }
+    .code-item img {
+      max-width: 150px;
+      margin-bottom: 5px;
+    }
+  </style>
+</head>
+<body>
+<h1>小罐茶编码打印</h1>
+<div class="form-group">
+  <label for="specification">规格：</label>
+  <select id="specification">
+    <option value="1">特级绿茶</option>
+    <option value="2">特级红茶</option>
+    <option value="3">特级乌龙茶</option>
+  </select>
+</div>
+<div class="form-group">
+  <label for="batch-number">批次号：</label>
+  <input type="text" id="batch-number" placeholder="例如：20240928001">
+</div>
+<div class="form-group">
+  <label for="quantity">数量：</label>
+  <input type="number" id="quantity" min="1" max="100" value="5">
+</div>
+<button onclick="generateCodes()">生成编码</button>
+
+<div id="codes-container" class="codes-container"></div>
+
+<script>
+  function generateCodes() {
+    const specificationId = document.getElementById('specification').value;
+    const batchNumber = document.getElementById('batch-number').value;
+    const quantity = document.getElementById('quantity').value;
+
+    // 这里应该是发送API请求的地方，但为了演示，我们使用模拟数据
+    const response = {
+      code: 0,
+      msg: "success",
+      data: {
+        specification: {
+          id: specificationId,
+          name: "特级绿茶",
+          category_name: "绿茶"
+        },
+        batch_number: batchNumber,
+        codes: Array.from({length: quantity}, (_, i) => ({
+          can_code: `${new Date().getFullYear()}${String(i+1).padStart(5, '0')}`,
+          qr_code: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${new Date().getFullYear()}${String(i+1).padStart(5, '0')}`
+        })),
+        count: parseInt(quantity)
+      }
+    };
+
+    const codesContainer = document.getElementById('codes-container');
+    codesContainer.innerHTML = '';
+
+    response.data.codes.forEach(code => {
+      const codeItem = document.createElement('div');
+      codeItem.className = 'code-item';
+      codeItem.innerHTML = `
+                    <img src="${code.qr_code}" alt="QR Code">
+                    <p>${code.can_code}</p>
+                `;
+      codesContainer.appendChild(codeItem);
+    });
+  }
+</script>
+</body>
+</html>
